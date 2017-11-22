@@ -84,8 +84,7 @@ public class MainActivity extends AppCompatActivity
         mSpeechRecognizer.setRecognitionListener(this);
 
         MessageDao message = new MessageDao(MainActivity.this,
-                userInput.getText().toString().trim(), true);
-        message.setUrl("https://developer.android.com/training/camera/photobasics.html");
+                "Hi, how may I assist you?", false);
         messageDaos.add(message);
 
         chatListAdapter = new ChatListAdapter(this);
