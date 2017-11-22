@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.touchmenotapps.athena.framework.ocr;
+package com.touchmenotapps.athena.ocr;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -26,7 +26,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -34,6 +33,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -45,9 +45,9 @@ import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
 import com.touchmenotapps.athena.R;
-import com.touchmenotapps.athena.framework.ocr.ui.camera.CameraSource;
-import com.touchmenotapps.athena.framework.ocr.ui.camera.CameraSourcePreview;
-import com.touchmenotapps.athena.framework.ocr.ui.camera.GraphicOverlay;
+import com.touchmenotapps.athena.ocr.ui.camera.CameraSource;
+import com.touchmenotapps.athena.ocr.ui.camera.CameraSourcePreview;
+import com.touchmenotapps.athena.ocr.ui.camera.GraphicOverlay;
 
 import java.io.IOException;
 
@@ -86,11 +86,13 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         super.onCreate(icicle);
         setContentView(R.layout.ocr_capture);
 
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay<OcrGraphic>) findViewById(R.id.graphicOverlay);
 
         // read parameters from the intent used to launch the activity.
-        boolean autoFocus = getIntent().getBooleanExtra(AutoFocus, false);
+        boolean autoFocus = getIntent().getBooleanExtra(AutoFocus, true);
         boolean useFlash = getIntent().getBooleanExtra(UseFlash, false);
 
         // Check for the camera permission before accessing the camera.  If the
@@ -117,7 +119,6 @@ public final class OcrCaptureActivity extends AppCompatActivity {
      */
     private void requestCameraPermission() {
         Log.w(TAG, "Camera permission is not granted. Requesting permission");
-
         final String[] permissions = new String[]{Manifest.permission.CAMERA};
 
         if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -125,9 +126,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, permissions, RC_HANDLE_CAMERA_PERM);
             return;
         }
-
         final Activity thisActivity = this;
-
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -135,7 +134,6 @@ public final class OcrCaptureActivity extends AppCompatActivity {
                         RC_HANDLE_CAMERA_PERM);
             }
         };
-
         Snackbar.make(mGraphicOverlay, R.string.permission_camera_rationale,
                 Snackbar.LENGTH_INDEFINITE)
                 .setAction(R.string.ok, listener)
@@ -145,9 +143,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     @Override
     public boolean onTouchEvent(MotionEvent e) {
         boolean b = scaleGestureDetector.onTouchEvent(e);
-
         boolean c = gestureDetector.onTouchEvent(e);
-
         return b || c || super.onTouchEvent(e);
     }
 
@@ -162,13 +158,11 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     @SuppressLint("InlinedApi")
     private void createCameraSource(boolean autoFocus, boolean useFlash) {
         Context context = getApplicationContext();
-
         // A text recognizer is created to find text.  An associated processor instance
         // is set to receive the text recognition results and display graphics for each text block
         // on screen.
         TextRecognizer textRecognizer = new TextRecognizer.Builder(context).build();
         textRecognizer.setProcessor(new OcrDetectorProcessor(mGraphicOverlay));
-
         if (!textRecognizer.isOperational()) {
             // Note: The first time that an app using a Vision API is installed on a
             // device, GMS will download a native libraries to the device in order to do detection.
@@ -180,12 +174,10 @@ public final class OcrCaptureActivity extends AppCompatActivity {
             // available.  The detectors will automatically become operational once the library
             // downloads complete on device.
             Log.w(TAG, "Detector dependencies are not yet available.");
-
             // Check for low storage.  If there is low storage, the native library will not be
             // downloaded, so detection will not become operational.
             IntentFilter lowstorageFilter = new IntentFilter(Intent.ACTION_DEVICE_STORAGE_LOW);
             boolean hasLowStorage = registerReceiver(null, lowstorageFilter) != null;
-
             if (hasLowStorage) {
                 Toast.makeText(this, R.string.low_storage_error, Toast.LENGTH_LONG).show();
                 Log.w(TAG, getString(R.string.low_storage_error));
@@ -236,6 +228,17 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     /**
      * Callback for the result from requesting permissions. This method
      * is invoked for every call on {@link #requestPermissions(String[], int)}.
@@ -261,7 +264,6 @@ public final class OcrCaptureActivity extends AppCompatActivity {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
             return;
         }
-
         if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Camera permission granted - initialize the camera source");
             // We have permission, so create the camerasource
@@ -270,16 +272,13 @@ public final class OcrCaptureActivity extends AppCompatActivity {
             createCameraSource(autoFocus, useFlash);
             return;
         }
-
         Log.e(TAG, "Permission not granted: results len = " + grantResults.length +
                 " Result code = " + (grantResults.length > 0 ? grantResults[0] : "(empty)"));
-
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 finish();
             }
         };
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Multitracker sample")
                 .setMessage(R.string.no_camera_permission)

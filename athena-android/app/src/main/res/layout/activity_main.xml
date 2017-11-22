@@ -4,90 +4,83 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
     android:orientation="vertical"
-    tools:context="com.touchmenotapps.athena.main.MainActivity"
-    android:background="@color/bg_color">
+    tools:context="com.touchmenotapps.athena.main.MainActivity">
 
-    <FrameLayout
-        android:id="@+id/frameLayout"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/user_input_container">
+        android:orientation="vertical">
+
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:popupTheme="@style/AppTheme.PopupOverlay">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/app_name_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:text="@string/app_name"
+                        android:fontFamily="sans-serif-light"
+                        android:textColor="@android:color/white"
+                        android:textSize="24sp"/>
+
+                </LinearLayout>
+
+            </android.support.v7.widget.Toolbar>
+
+        </android.support.design.widget.AppBarLayout>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/chatList"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_weight="1"
-            android:adjustViewBounds="true" />
-
-        <android.support.v7.widget.CardView
-            android:id="@+id/options_view"
-            android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:orientation="vertical"
-            android:visibility="gone"
-            app:cardBackgroundColor="@android:color/holo_blue_dark"
-            app:cardCornerRadius="5dp"
-            app:cardUseCompatPadding="true">
-
-            <LinearLayout
-                android:id="@+id/options_button_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:visibility="gone">
-
-                <Button
-                    android:id="@+id/search_by_audio"
-                    style="@style/Button"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    android:text="Voice Input" />
-
-                <Button
-                    android:id="@+id/search_by_image"
-                    style="@style/Button"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    android:text="Scan Image" />
-
-                <Button
-                    android:id="@+id/search_by_text_scan"
-                    style="@style/Button"
-                    android:text="Scan Question" />
-            </LinearLayout>
-        </android.support.v7.widget.CardView>
-
-    </FrameLayout>
-
-    <android.support.v7.widget.CardView
-        android:id="@+id/user_input_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:cardCornerRadius="5dp"
-        app:cardUseCompatPadding="true">
+            android:layout_weight="1"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="horizontal"
-            android:gravity="center">
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp">
 
-            <android.support.v7.widget.AppCompatEditText
-                android:id="@+id/textView"
+            <android.support.v7.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:background="@android:color/transparent"
-                android:fontFamily="sans-serif-light"
                 android:layout_weight="1"
-                android:hint="Ask Athena"
-                android:maxLines="4"
-                android:textSize="16sp" />
+                app:cardCornerRadius="5dp"
+                app:cardUseCompatPadding="true">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/userInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:background="@android:color/transparent"
+                    android:fontFamily="sans-serif-light"
+                    android:hint="Ask Athena"
+                    android:maxLines="4"
+                    android:textSize="16sp" />
+
+            </android.support.v7.widget.CardView>
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/sendInput"
@@ -96,27 +89,105 @@
                 android:layout_margin="10dp"
                 android:layout_marginEnd="@dimen/activity_vertical_margin"
                 android:adjustViewBounds="true"
-                android:background="@drawable/rounded_button"
-                android:src="@drawable/ic_launcher_background"
-                android:tint="@android:color/white"
+                android:tint="@color/colorPrimary"
+                android:src="@drawable/ic_send_black_24dp"
                 app:fabSize="mini" />
 
         </LinearLayout>
+    </LinearLayout>
 
-    </android.support.v7.widget.CardView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginTop="?attr/actionBarSize">
 
+        <android.support.v7.widget.CardView
+            android:id="@+id/options_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="5dp"
+            app:cardUseCompatPadding="true">
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/launchOptions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/frameLayout"
-        android:layout_alignParentRight="true"
-        android:layout_marginEnd="@dimen/activity_vertical_margin"
-        android:adjustViewBounds="true"
-        android:background="@drawable/rounded_button"
-        android:src="@drawable/ic_apps_black_24dp"
-        android:tint="@android:color/white"
-        app:fabSize="normal" />
+            <LinearLayout
+                android:id="@+id/options_button_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:layout_margin="10dp">
+
+                <LinearLayout
+                    android:id="@+id/search_by_text_scan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_margin="5dp">
+
+                    <ImageView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:src ="@drawable/ic_text"/>
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-light"
+                        android:text="Scan Text"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/search_by_audio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_margin="5dp">
+
+                    <ImageView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:src ="@drawable/ic_mic"/>
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-light"
+                        android:text="Voice Input"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/search_by_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_margin="5dp">
+
+                    <ImageView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:src ="@drawable/ic_camera"/>
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-light"
+                        android:text="Scan Image"/>
+
+                </LinearLayout>
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+
+    </LinearLayout>
 
 </RelativeLayout>
+
+

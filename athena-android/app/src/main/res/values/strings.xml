@@ -14,12 +14,5 @@
     <string name="ocr_failure">No text captured</string>
     <string name="ocr_error">"Error reading text: %1$s"</string>
 
-    <string name="image">image</string>
-    <string name="desc">Being the savage\'s bowsman, that is, the person who pulled the
-    bow-oar in his boat. Dolor sit amet.</string>
-
-    <string name="italic">Friday 12 FEB.</string>
-    <string name="duplicate">DUPLICATE</string>
-    <string name="schedule">SCHEDULE</string>
-    <string name="delete">DELETE</string>
+    <string name="cloud_api_key">AIzaSyAQjYKUXIHMsQSBxMF_IAnQANkguOnUe7U</string>
 </resources>

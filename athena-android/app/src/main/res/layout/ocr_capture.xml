@@ -6,16 +6,16 @@
     android:layout_height="match_parent"
     android:keepScreenOn="true">
 
-    <com.touchmenotapps.athena.framework.ocr.ui.camera.CameraSourcePreview
+    <com.touchmenotapps.athena.ocr.ui.camera.CameraSourcePreview
         android:id="@+id/preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.touchmenotapps.athena.framework.ocr.ui.camera.GraphicOverlay
+        <com.touchmenotapps.athena.ocr.ui.camera.GraphicOverlay
             android:id="@+id/graphicOverlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    </com.touchmenotapps.athena.framework.ocr.ui.camera.CameraSourcePreview>
+    </com.touchmenotapps.athena.ocr.ui.camera.CameraSourcePreview>
 
 </LinearLayout>

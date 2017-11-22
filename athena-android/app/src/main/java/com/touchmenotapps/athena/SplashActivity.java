@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.touchmenotapps.athena.framework.AppPreferences;
-import com.touchmenotapps.athena.framework.ocr.OcrActivity;
 import com.touchmenotapps.athena.main.MainActivity;
 
 import butterknife.BindView;

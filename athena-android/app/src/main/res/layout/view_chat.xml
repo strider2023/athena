@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="5dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginTop="5dp"
+    android:orientation="horizontal">
+
+    <android.support.v4.widget.Space
+        android:id="@+id/chat_message_user"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <android.support.v7.widget.CardView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        app:cardCornerRadius="3dp"
+        app:cardUseCompatPadding="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/chat_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:text="Test" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/chat_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout
+                android:id="@+id/url_preview_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/url_preview_image"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:layout_gravity="center"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:orientation="vertical">
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/url_preview_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Test"
+                        android:textStyle="bold"/>
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/url_preview_details"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Test"
+                        android:textSize="12sp"
+                        android:maxLines="3"
+                        android:ellipsize="end"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+    <android.support.v4.widget.Space
+        android:id="@+id/chat_message_system"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+</LinearLayout>
