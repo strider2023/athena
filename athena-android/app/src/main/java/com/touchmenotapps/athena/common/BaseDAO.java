@@ -2,7 +2,7 @@ package com.touchmenotapps.athena.common;
 
 import android.content.Context;
 
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.text.DecimalFormat;

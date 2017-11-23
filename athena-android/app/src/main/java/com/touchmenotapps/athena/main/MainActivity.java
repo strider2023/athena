@@ -2,9 +2,13 @@ package com.touchmenotapps.athena.main;
 
 import android.animation.Animator;
 import android.content.Intent;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,26 +24,32 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.touchmenotapps.athena.R;
+import com.touchmenotapps.athena.common.enums.ServerEvents;
+import com.touchmenotapps.athena.common.interfaces.ServerResponseListener;
 import com.touchmenotapps.athena.imageRecognition.ImageRecognitionActivity;
 import com.touchmenotapps.athena.main.adapters.ChatListAdapter;
 import com.touchmenotapps.athena.main.dao.MessageDao;
 import com.touchmenotapps.athena.main.dao.enums.ChatSelectListener;
+import com.touchmenotapps.athena.main.threads.SendUserMessageTask;
 import com.touchmenotapps.athena.ocr.OcrCaptureActivity;
+import com.touchmenotapps.athena.quiz.QuizActivity;
+
+import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity
-        implements ChatSelectListener, RecognitionListener {
+        implements ChatSelectListener, RecognitionListener, ServerResponseListener {
 
     private static final int RC_OCR_CAPTURE = 9003;
     private static final int IMAGE_CAPTURE = 9004;
@@ -66,6 +76,8 @@ public class MainActivity extends AppCompatActivity
     private ChatListAdapter chatListAdapter;
     private LinearLayoutManager linearLayoutManager;
 
+    private TextToSpeech textToSpeech;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,13 +97,33 @@ public class MainActivity extends AppCompatActivity
 
         MessageDao message = new MessageDao(MainActivity.this,
                 "Hi, how may I assist you?", false);
-        messageDaos.add(message);
 
         chatListAdapter = new ChatListAdapter(this);
         linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
         chatList.setLayoutManager(linearLayoutManager);
         chatList.setAdapter(chatListAdapter);
-        chatListAdapter.setData(messageDaos);
+        chatListAdapter.setData(message);
+
+        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    textToSpeech.setLanguage(Locale.US);
+                    //textToSpeech.speak("Hi, how may I assist you?", TextToSpeech.QUEUE_FLUSH, null,"id1");
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        if(textToSpeech !=null){
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+        }
+        super.onPause();
     }
 
     @Override
@@ -131,7 +163,14 @@ public class MainActivity extends AppCompatActivity
 
     @OnClick(R.id.search_by_audio)
     public void onVoiceInput() {
-
+        if (!isListening) {
+            isListening = true;
+            mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
+        } else {
+            isListening = false;
+            mSpeechRecognizer.stopListening();
+        }
+        //startActivity(new Intent(this, QuizActivity.class));
     }
 
     @OnClick(R.id.sendInput)
@@ -139,10 +178,8 @@ public class MainActivity extends AppCompatActivity
         if(userInput.getText().toString().trim().length() > 0) {
             MessageDao message = new MessageDao(MainActivity.this,
                     userInput.getText().toString().trim(), true);
-            messageDaos.add(message);
-            chatListAdapter.setData(messageDaos);
+            sendServerRequest(message);
             userInput.getEditableText().clear();
-            //TODO API call here
         }
     }
 
@@ -192,17 +229,34 @@ public class MainActivity extends AppCompatActivity
                 if (resultCode == CommonStatusCodes.SUCCESS) {
                     if (data != null) {
                         String text = data.getStringExtra(OcrCaptureActivity.TextBlockObject);
-                        MessageDao message = new MessageDao(MainActivity.this, text, true);
-                        messageDaos.add(message);
-                        chatListAdapter.setData(messageDaos);
-                        Log.d(TAG, "Text read: " + text);
+                        MessageDao message = new MessageDao(MainActivity.this, "Athena, can you help me with the answer?", true);
+                        message.setQuestion(text);
+                        sendServerRequest(message);
                     } else {
                         Snackbar.make(chatList, R.string.ocr_failure, Snackbar.LENGTH_LONG).show();
-                        Log.d(TAG, "No Text captured, intent data is null");
                     }
                 } else {
                     Snackbar.make(chatList, String.format(getString(R.string.ocr_error),
                             CommonStatusCodes.getStatusCodeString(resultCode)), Snackbar.LENGTH_LONG).show();
+                }
+                break;
+            case IMAGE_CAPTURE:
+                if (resultCode == CommonStatusCodes.SUCCESS) {
+                    if (data != null) {
+                        try {
+                            String mCurrentPhotoPath = data.getStringExtra("imagePath");
+                            MessageDao message = new MessageDao(MainActivity.this, "Athena, what's on my screen?", true);
+                            message.setImage(MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(mCurrentPhotoPath)));
+                            message.setImageUrl(mCurrentPhotoPath);
+                            sendServerRequest(message);
+                        } catch (Exception e) {
+                            Snackbar.make(chatList, "Unable to get user image!", Snackbar.LENGTH_LONG).show();
+                        }
+                    } else {
+                        Snackbar.make(chatList, "Unable to get user image!", Snackbar.LENGTH_LONG).show();
+                    }
+                } else {
+                    Snackbar.make(chatList, "Unable to fetch user image!", Snackbar.LENGTH_LONG).show();
                 }
                 break;
             default:
@@ -213,7 +267,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onURLSelection(String url) {
-
+        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+        CustomTabsIntent customTabsIntent = builder.build();
+        customTabsIntent.launchUrl(this, Uri.parse(url));
     }
 
     @Override
@@ -243,7 +299,7 @@ public class MainActivity extends AppCompatActivity
                 Snackbar.make(chatList, "Unable to connect to the internet.", Snackbar.LENGTH_LONG).show();
                 break;
             default:
-                Snackbar.make(chatList, "Something went wrong. Please try again!", Snackbar.LENGTH_LONG).show();
+                //Snackbar.make(chatList, "Something went wrong. Please try again!", Snackbar.LENGTH_LONG).show();
                 break;
         }
     }
@@ -255,6 +311,7 @@ public class MainActivity extends AppCompatActivity
             for(String value : matches) {
                 Log.d("Test", "Match : " + value);
             }
+            userInput.setText(matches.get(0));
         }
         mSpeechRecognizer.stopListening();
         isListening = false;
@@ -273,4 +330,24 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onEvent(int eventType, Bundle params) { }
+
+    @Override
+    public void onSuccess(int threadId, Object object) {
+        chatListAdapter.setData((MessageDao) object);
+        textToSpeech.speak(((MessageDao) object).getMessage(), TextToSpeech.QUEUE_FLUSH, null,"id1");
+    }
+
+    @Override
+    public void onFaliure(ServerEvents serverEvents, Object object) {
+        MessageDao message = new MessageDao(MainActivity.this,
+                "Sorry but I am unable to answer that.", false);
+        chatListAdapter.setData(message);
+        textToSpeech.speak("Sorry but I am unable to answer that.", TextToSpeech.QUEUE_FLUSH, null,"id1");
+    }
+
+    private void sendServerRequest(MessageDao message) {
+        chatListAdapter.setData(message);
+        new SendUserMessageTask(1, this, this)
+                .execute(new JSONObject[]{message.getJSONPostRequest()});
+    }
 }

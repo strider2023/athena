@@ -19,6 +19,9 @@ import java.util.List;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListViewHolder> {
 
+    //Tag for tracking self message
+    private int SELF = 786;
+
     private ChatSelectListener chatSelectListener;
     private List<MessageDao> messageDaos = new ArrayList<>();
 
@@ -26,15 +29,41 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListViewHolder> {
         this.chatSelectListener = chatSelectListener;
     }
 
-    public void setData(List<MessageDao> messageDaos) {
-        this.messageDaos = messageDaos;
+    public void setData(MessageDao message) {
+        this.messageDaos.add(message);
+        notifyDataSetChanged();
+    }
+
+    public void clearData() {
+        this.messageDaos.clear();
         notifyDataSetChanged();
     }
 
     @Override
+    public int getItemViewType(int position) {
+        //getting message object of current position
+        MessageDao message = messageDaos.get(position);
+        //If its owner  id is  equals to the logged in user id
+        if (message.isUserInput()) {
+            //Returning self
+            return SELF;
+        }
+        //else returning position
+        return position;
+    }
+
+    @Override
     public ChatListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_chat,
-                parent, false);
+        View view;
+        if (viewType == SELF) {
+            //Inflating the layout self
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.view_chat_user, parent, false);
+        } else {
+            //else inflating the layout others
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.view_chat_athena, parent, false);
+        }
         return new ChatListViewHolder(view);
     }
 

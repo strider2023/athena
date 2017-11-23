@@ -3,15 +3,19 @@ package com.touchmenotapps.athena.imageRecognition;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
+import com.google.android.gms.common.api.CommonStatusCodes;
 import com.touchmenotapps.athena.R;
 
 import java.io.File;
@@ -21,6 +25,7 @@ import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class ImageRecognitionActivity extends AppCompatActivity {
 
@@ -31,6 +36,8 @@ public class ImageRecognitionActivity extends AppCompatActivity {
 
     @BindView(R.id.captured_image)
     ImageView capturedImage;
+    @BindView(R.id.send_captured_image)
+    FloatingActionButton sendImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,15 +50,12 @@ public class ImageRecognitionActivity extends AppCompatActivity {
 
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (cameraIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
             File photoFile = null;
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
-                // Error occurred while creating the File
                 Log.i("ImageReco", "IOException");
             }
-            // Continue only if the File was successfully created
             if (photoFile != null) {
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
                 startActivityForResult(cameraIntent, REQUEST_IMAGE_CAPTURE);
@@ -59,8 +63,17 @@ public class ImageRecognitionActivity extends AppCompatActivity {
         }
     }
 
+    @OnClick(R.id.send_captured_image)
+    public void sendCapturedImage() {
+        if (mImageBitmap != null) {
+            Intent data = new Intent();
+            data.putExtra("imagePath", mCurrentPhotoPath);
+            setResult(CommonStatusCodes.SUCCESS, data);
+            finish();
+        }
+    }
+
     private File createImageFile() throws IOException {
-        // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(
@@ -79,7 +92,9 @@ public class ImageRecognitionActivity extends AppCompatActivity {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             try {
                 mImageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(mCurrentPhotoPath));
+                capturedImage.setColorFilter(Color.argb(0, 255, 255, 255));
                 capturedImage.setImageBitmap(mImageBitmap);
+                sendImage.setVisibility(View.VISIBLE);
             } catch (IOException e) {
                 e.printStackTrace();
             }

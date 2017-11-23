@@ -27,10 +27,6 @@ public class ChatListViewHolder extends RecyclerView.ViewHolder implements LinkP
 
     @BindView(R.id.chat_message)
     AppCompatTextView chatMessage;
-    @BindView(R.id.chat_message_system)
-    Space messageSystem;
-    @BindView(R.id.chat_message_user)
-    Space messageUser;
     @BindView(R.id.url_preview_container)
     LinearLayout urlPreview;
     @BindView(R.id.url_preview_image)
@@ -41,6 +37,10 @@ public class ChatListViewHolder extends RecyclerView.ViewHolder implements LinkP
     AppCompatTextView urlPreviewDesc;
     @BindView(R.id.chat_url)
     AppCompatTextView chatURL;
+    @BindView(R.id.chat_image)
+    ImageView chatImage;
+    @BindView(R.id.chat_question_block)
+    AppCompatTextView questionBlock;
 
     private TextCrawler textCrawler;
     private ChatSelectListener chatSelectListener;
@@ -60,15 +60,18 @@ public class ChatListViewHolder extends RecyclerView.ViewHolder implements LinkP
 
     public void setData(MessageDao messageDao) {
         this.messageDao = messageDao;
-        if(messageDao.isUserInput()) {
-            messageUser.setVisibility(View.VISIBLE);
-        } else {
-            messageSystem.setVisibility(View.VISIBLE);
-        }
         chatMessage.setText(messageDao.getMessage());
         if(messageDao.getUrl() != null) {
             chatURL.setText(messageDao.getUrl());
             textCrawler.makePreview(this, messageDao.getUrl());
+        }
+        if(messageDao.getImage() != null) {
+            chatImage.setVisibility(View.VISIBLE);
+            chatImage.setImageBitmap(messageDao.getImage());
+        }
+        if(messageDao.getQuestion() != null) {
+            questionBlock.setVisibility(View.VISIBLE);
+            questionBlock.setText(messageDao.getQuestion());
         }
     }
 
