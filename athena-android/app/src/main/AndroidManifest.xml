@@ -34,7 +34,9 @@
             android:name=".main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".login.LoginActivity" />
-        <activity android:name=".ocr.OcrCaptureActivity" />
+        <activity android:name=".ocr.OcrCaptureActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|keyboardHidden" />
         <activity
             android:name=".imageRecognition.ImageRecognitionActivity"
             android:theme="@style/AppTheme.NoActionBar" />

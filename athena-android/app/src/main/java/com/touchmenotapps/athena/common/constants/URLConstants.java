@@ -5,5 +5,5 @@ package com.touchmenotapps.athena.common.constants;
  */
 
 public class URLConstants {
-    public static final String AUTH_URL = "http://192.168.33.135:8060/dialogflow";
+    public static final String AUTH_URL = "http://202.65.158.186:8060/dialogflow";
 }
